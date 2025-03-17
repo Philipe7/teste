@@ -1,0 +1,43 @@
+version: '3.8'
+services:
+  nginx:
+    image: SEU_USUARIO_DOCKERHUB/nginx-custom
+    container_name: nginx_proxy
+    ports:
+      - "80:80"
+    depends_on:
+      - wordpress
+    networks:
+      - wp_network
+  
+  wordpress:
+    image: wordpress:latest
+    container_name: wordpress_site
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: wp_pass
+      WORDPRESS_DB_NAME: wp_db
+    depends_on:
+      - db
+    networks:
+      - wp_network
+  
+  db:
+    image: mysql:5.7
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: wp_db
+      MYSQL_USER: wp_user
+      MYSQL_PASSWORD: wp_pass
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - wp_network
+
+volumes:
+  db_data:
+
+networks:
+  wp_network:

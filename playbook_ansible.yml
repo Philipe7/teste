@@ -1,0 +1,31 @@
+- name: Configuração do Servidor
+  hosts: all
+  become: yes
+  tasks:
+    - name: Instalar pacotes essenciais
+      apt:
+        name: ["docker.io", "docker-compose", "python3-pip"]
+        state: present
+        update_cache: yes
+    
+    - name: Adicionar usuário vagrant ao grupo docker
+      user:
+        name: vagrant
+        groups: docker
+        append: yes
+    
+    - name: Habilitar e iniciar o Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+    
+    - name: Copiar docker-compose.yml
+      copy:
+        src: docker-compose.yml
+        dest: /home/vagrant/docker-compose.yml
+    
+    - name: Subir serviços com Docker Compose
+      command: docker-compose up -d
+      args:
+        chdir: /home/vagrant
